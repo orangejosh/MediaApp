@@ -41,5 +41,7 @@ namespace MediaApp.Models
         [Required]
         public int Year { get; set; }
         public int Rating { get; set; }
+        public HttpPostedFileBase ImageInput { get; set; }
+        public Image MovImage { get; set; }
     }
 }

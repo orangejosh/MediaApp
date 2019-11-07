@@ -8,8 +8,10 @@ namespace MediaApp.Models
 {
     public class People
     {
+        [Required]
         public string Name { get; set; }
         public List<Movie> Movies { get; set; }
+        public HttpPostedFileBase Image { get; set; }
 
         public People()
         {

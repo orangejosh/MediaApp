@@ -31,7 +31,7 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: + " + e);
             }
-
+            command.Dispose();
             dbConn.Close();
         }
 
@@ -55,7 +55,9 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
+            command.Dispose();
             dbConn.Close();
+
             return id;
         }
     }

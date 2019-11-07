@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using MediaApp.Models;
 using System.Data.SqlClient;
+using System.IO;
 
 namespace MediaApp.Controllers
 {
@@ -26,6 +27,7 @@ namespace MediaApp.Controllers
         {
             var dbConn = dbConnection();
 
+
             // Create Movie
             string queryString = "INSERT INTO dbo.Movie(Title, Year, Rating) VALUES ('" + mov.Title + "', " + mov.Year + ", " + mov.Rating + ")";
             ExecuteSqlString(dbConn, queryString);
@@ -34,7 +36,7 @@ namespace MediaApp.Controllers
             var movieId = GetId(queryString, dbConn);
 
             // Create Director
-            if (mov.Director.Name.Length > 0)
+            if (mov.Director != null && mov.Director.Name.Length > 0)
             {
                 queryString = "INSERT INTO dbo.People(Name) VALUES ('" + mov.Director.Name + "');";
                 ExecuteSqlString(dbConn, queryString);
@@ -49,7 +51,7 @@ namespace MediaApp.Controllers
             // Create Actors
             foreach (People actor in mov.Cast)
             {
-                if (actor.Name.Length > 0)
+                if (actor.Name != null && actor.Name.Length > 0)
                 {
                     queryString = "INSERT INTO dbo.People(Name) VALUES ('" + actor.Name + "');";
                     ExecuteSqlString(dbConn, queryString);
@@ -71,6 +73,32 @@ namespace MediaApp.Controllers
                     ExecuteSqlString(dbConn, queryString);
                 } 
             }
+
+            if (mov.ImageInput != null)
+            {
+                BinaryReader reader = new BinaryReader(mov.ImageInput.InputStream);
+                byte[] imageData = reader.ReadBytes(mov.ImageInput.ContentLength);
+
+                string fileName = mov.ImageInput.FileName;
+                string type = mov.ImageInput.ContentType;
+
+                queryString = "INSERT INTO dbo.Image(Image, Name, Type) VALUES(@imageData, @fileName, @type)";
+                SqlCommand cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@imageData", imageData);
+                cmd.Parameters.AddWithValue("@fileName", fileName);
+                cmd.Parameters.AddWithValue("@type", type);
+
+                dbConn.Open();
+                cmd.ExecuteNonQuery();
+                dbConn.Close();
+
+                queryString = "Select Id FROM dbo.Image WHERE Name = '" + fileName + "';";
+                int imageId = GetId(queryString, dbConn);
+
+                queryString = "UPDATE dbo.Movie SET ImageId = " + imageId + " WHERE Id = " + movieId + ";";
+                ExecuteSqlString(dbConn, queryString);
+            }
+
 
             return RedirectToAction("Index");
         }
@@ -140,6 +168,14 @@ namespace MediaApp.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult Details(int id)
+        {
+            Movie mov = GetMovie(id);
+            AddPeople(mov);
+            AddGenre(mov);
+            return View(mov);
+        }
+
         public ActionResult Delete(Movie mov)
         {
             var dbConn = dbConnection();
@@ -163,6 +199,7 @@ namespace MediaApp.Controllers
             {
                 AddPeople(mov);
                 AddGenre(mov);
+                AddImage(mov);
             }
 
             return movieList;
@@ -278,6 +315,46 @@ namespace MediaApp.Controllers
                 while (reader.Read())
                 {
                     mov.Genre.Add(reader.GetString(0));
+                }
+                reader.Close();
+            }
+            catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Error: " + e.Message);
+            }
+            command.Dispose();
+            dbConn.Close();
+        }
+
+        private void AddImage(Movie mov)
+        {
+            var dbConn = dbConnection();
+            string queryString = 
+                "SELECT " +
+                    "Name, Type, Image " +
+                "FROM " +
+                    "dbo.Movie AS m " +
+                "INNER JOIN " +
+                    "dbo.Image AS i ON m.ImageId = i.Id " +
+                "WHERE " +
+                    "m.id = " + mov.Id + ";";
+
+            SqlCommand command = new SqlCommand(queryString, dbConn);
+            dbConn.Open();
+
+            try
+            {
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Image image = new Image();
+                    image.Name = reader.GetString(0);
+                    image.Type = reader.GetString(1);
+
+                    byte[] imageData = (byte[])reader[2];
+                    image.Data = Convert.ToBase64String(imageData);
+
+                    mov.MovImage = image;
                 }
                 reader.Close();
             }
