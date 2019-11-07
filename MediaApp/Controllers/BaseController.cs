@@ -19,31 +19,28 @@ namespace MediaApp.Controllers
             return conn;
         }
 
-        [NonAction]
-        protected void ExecuteSqlString(SqlConnection dbConn, string queryString)
-        {
-            SqlCommand command = new SqlCommand(queryString, dbConn);
+		[NonAction]
+		protected void ExecuteCmd(SqlCommand cmd, SqlConnection dbConn)
+		{
             dbConn.Open();
             try
             {
-                command.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
             } catch(Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: + " + e);
             }
-            command.Dispose();
+            cmd.Dispose();
             dbConn.Close();
-        }
+		}
 
-        [NonAction]
-        protected int GetId(string queryString, SqlConnection dbConn)
-        {
+		[NonAction]
+		protected int GetId(SqlCommand cmd, SqlConnection dbConn){
             int id = -1;
-            SqlCommand command = new SqlCommand(queryString, dbConn);
             try
             {
                 dbConn.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
@@ -55,10 +52,10 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            command.Dispose();
+            cmd.Dispose();
             dbConn.Close();
 
             return id;
-        }
+		}
     }
 }

@@ -22,12 +22,12 @@ namespace MediaApp.Controllers
             var dbConn = dbConnection();
             string queryString = "SELECT Id, Name FROM dbo.People;";
             
-            SqlCommand command = new SqlCommand(queryString, dbConn);
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
             dbConn.Open();
 
             try
             {
-                SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     People person = new People(reader.GetString(1));
@@ -39,7 +39,7 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            command.Dispose();
+            cmd.Dispose();
             dbConn.Close();
 
             return peopleList;
@@ -49,6 +49,7 @@ namespace MediaApp.Controllers
         {
             List<Movie> movieList = new List<Movie>();
             var dbConn = dbConnection();
+
             string queryString =
                 "SELECT " +
                     "Title, Year " +
@@ -59,14 +60,16 @@ namespace MediaApp.Controllers
                 "INNER JOIN " +
                     "dbo.People AS p ON mp.PeopleId = p.Id " +
                 "WHERE " +
-                    "p.Id = " + id;
+                    "p.Id = @id;";
 
-            SqlCommand command = new SqlCommand(queryString, dbConn);
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@id", id);
+
             dbConn.Open();
 
             try
             {
-                SqlDataReader reader = command.ExecuteReader();
+                SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Movie movie = new Movie(reader.GetString(0), reader.GetInt32(1));
