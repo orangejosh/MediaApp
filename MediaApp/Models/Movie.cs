@@ -31,6 +31,7 @@ namespace MediaApp.Models
             Genre = new List<string>();
             Rating = rating;
         }
+
         public int Id { get; set; }
         [Required]
         public string Title { get; set; }
@@ -40,8 +41,10 @@ namespace MediaApp.Models
         public List<string> Genre { get; set; }
         [Required]
         public int Year { get; set; }
-        public int Rating { get; set; }
+        public int? Rating { get; set; }
+        [Display(Name = "Movie Image")]
         public HttpPostedFileBase ImageInput { get; set; }
+        [Display(Name = "")]
         public Image MovImage { get; set; }
     }
 }
