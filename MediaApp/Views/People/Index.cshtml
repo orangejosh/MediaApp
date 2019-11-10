@@ -24,6 +24,13 @@
 @foreach (var item in Model) {
     <tr>
         <td>
+            @if (item.PeopleImage != null)
+            {
+                var imgData = "data:" + @item.PeopleImage.Type + ";base64," + @item.PeopleImage.Data;
+                <img width="75" height="75" src=@imgData />
+            }
+        </td>
+        <td>
             @Html.DisplayFor(modelItem => item.Name)
         </td>
         <td>
@@ -33,7 +40,7 @@
             }
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
             @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
             @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
         </td>

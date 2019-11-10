@@ -10,28 +10,6 @@ namespace MediaApp.Models
 {
     public class Movie
     {
-        public Movie()
-        {
-            Cast = new List<People>();
-            Genre = new List<string>();
-        }
-
-        public Movie(string title, int year)
-        {
-            Title = title;
-            Year = year;
-        }
-
-        public Movie(int id, string title, int year, int rating)
-        {
-            Id = id;
-            Title = title;
-            Year = year;
-            Cast = new List<People>();
-            Genre = new List<string>();
-            Rating = rating;
-        }
-
         public int Id { get; set; }
         [Required]
         public string Title { get; set; }
@@ -46,5 +24,19 @@ namespace MediaApp.Models
         public HttpPostedFileBase ImageInput { get; set; }
         [Display(Name = "")]
         public Image MovImage { get; set; }
+        public Movie()
+        {
+            Cast = new List<People>();
+            Genre = new List<string>();
+        }
+
+        public Movie(int id, string title, int year)
+        {
+            Id = id;
+            Title = title;
+            Year = year;
+            Cast = new List<People>();
+            Genre = new List<string>();
+        }
     }
 }

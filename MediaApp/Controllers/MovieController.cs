@@ -199,7 +199,7 @@ namespace MediaApp.Controllers
 
             string queryString =
                 "SELECT " +
-                    "p.Name, mp.Job " +
+                    "p.Id, p.Name, mp.Job " +
                 "FROM " +
                     "dbo.MovPeople AS mp " +
                 "INNER JOIN " +
@@ -217,12 +217,12 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    if (reader.GetString(1) == "Director")
+                    if (reader.GetString(2) == "Director")
                     {
-                        mov.Director = new People(reader.GetString(0));
-                    } else if (reader.GetString(1) == "Actor")
+                        mov.Director = new People(reader.GetInt32(0), reader.GetString(1));
+                    } else if (reader.GetString(2) == "Actor")
                     {
-                        mov.Cast.Add(new People(reader.GetString(0)));
+                        mov.Cast.Add(new People(reader.GetInt32(0), reader.GetString(1)));
                     }
                 }
                 reader.Close();
