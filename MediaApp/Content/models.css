@@ -1,0 +1,29 @@
+﻿body {
+    padding: 0px;
+    margin: 0;
+    width: 100%;
+    height:100%
+}
+
+.mainSection{
+    position: relative;
+    top:30px;
+}
+
+.modelTitle {
+    position:relative;
+    padding-top: 15px;
+    padding-left: 15px;
+}
+
+#modelCurve{
+    position: absolute;
+    width: 100%;
+    background: radial-gradient(circle at right, #0000, #0000 90%, #0000 90%, #808080 90%);
+}
+
+.movieTable{
+    position:absolute;
+    left:10%;
+    width:90%;
+}

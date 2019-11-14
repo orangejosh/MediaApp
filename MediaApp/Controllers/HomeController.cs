@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.IO;
+using System.Web.Hosting;
 
 namespace MediaApp.Controllers
 {
@@ -10,21 +12,18 @@ namespace MediaApp.Controllers
     {
         public ActionResult Index()
         {
-            return View();
-        }
+            List<string> fileNames = new List<string>();
+            string[] files = Directory.GetFiles(HostingEnvironment.MapPath("~/Content/Images/TitleSlide"));
 
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
+            foreach(string file in files)
+            {
+                fileNames.Add(Path.GetFileName(file));
+            }
 
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            var rnd = new Random();
+            var result = fileNames.OrderBy(item => rnd.Next());
+            
+            return View(result);
         }
     }
 }

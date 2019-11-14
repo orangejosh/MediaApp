@@ -1582,9 +1582,9 @@ pre code {
 }
 .container {
   padding-right: 15px;
-  padding-left: 15px;
+  padding-left: 0px;
   margin-right: auto;
-  margin-left: auto;
+  margin-left: 13%;
 }
 @media (min-width: 768px) {
   .container {

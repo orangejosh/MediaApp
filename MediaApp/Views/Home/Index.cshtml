@@ -1,10 +1,22 @@
-﻿@{
+﻿@model IOrderedEnumerable<string>
+@{
     ViewBag.Title = "Home Page";
 }
 
-<div class="jumbotron">
-<!--    <a href ="/Movie" style= "display: inline-block; padding: 10px"><h1>Movies</h1></a>
-    <a href= "/Music" style="display: inline-block; padding: 10px"><h1>Music</h1></a>
-    <br />
--->
+<div class="movieSlide">
+    @{ 
+        foreach(var file in Model)
+        {
+            string src = "/Content/Images/TitleSlide/" + file;
+            <img class="movieCover" src=@src />
+        }
+    }
+</div>
+
+<div id="curve">
+    <h1>The <br/> Movie <br /> Database</h1>
+    <p>A Database of Movies</p>
+    <p>that anyone can edit</p>
+    <p>and view by title,</p>
+    <p>rating, year, or actor.</p>
 </div>

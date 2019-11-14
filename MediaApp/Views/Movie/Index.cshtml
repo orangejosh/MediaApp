@@ -2,94 +2,95 @@
 
 @{
     ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ModelIndexLayout.cshtml";
 }
 
-<h2>Index</h2>
+<h2 class="modelTitle">Movies</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.MovImage)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Title)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Director)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Cast)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Genre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Year)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Rating)
-        </th>
-        <th></th>
-    </tr>
+<div class="movieTable">
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+    <table class="table">
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MovImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Director)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Cast)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Genre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Year)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rating)
+            </th>
+            <th></th>
+        </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @if (item.MovImage != null)
-            {
-                var imgData = "data:" + @item.MovImage.Type + ";base64," + @item.MovImage.Data;
-                <img width="75" height="75" src=@imgData />
-            }
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Director.Name)
-        </td>
-        <td>
-            @for (int i = 0; i < item.Cast.Count; i++)
-            {
-                if (i > 2)
-                {
-                    @Html.ActionLink("See More...", "Details", new { id=item.Id })
-                    break;
-                }
-                <p class="wordList">@item.Cast[i].Name</p>
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @if (item.MovImage != null)
+                    {
+                        var imgData = "data:" + @item.MovImage.Type + ";base64," + @item.MovImage.Data;
+                        <img width="75" height="75" src=@imgData />
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Director.Name)
+                </td>
+                <td>
+                    @for (int i = 0; i < item.Cast.Count; i++)
+                    {
+                        if (i > 2)
+                        {
+                            @Html.ActionLink("See More...", "Details", new { id=item.Id })
+                            break;
+                        }
+                        <p class="wordList">@item.Cast[i].Name</p>
 
-            }
-        </td>
-        <td>
-            @for (int i = 0; i < item.Genre.Count; i++)
-            {
-                if (i > 2)
-                {
-                    @Html.ActionLink("See More...", "Details", new { id=item.Id })
-                    break;
-                }
-                <p class="wordList">@item.Genre[i]</p>
+                    }
+                </td>
+                <td>
+                    @for (int i = 0; i < item.Genre.Count; i++)
+                    {
+                        if (i > 2)
+                        {
+                            @Html.ActionLink("See More...", "Details", new { id=item.Id })
+                            break;
+                        }
+                        <p class="wordList">@item.Genre[i]</p>
 
-            }
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Year)
-        </td>
-        <td>
-            @if (item.Rating > 0)
-            {
-                @Html.DisplayFor(modelItem => item.Rating)
-            }
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.Id })
-        </td>
-    </tr>
-}
-
-</table>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Year)
+                </td>
+                <td>
+                    @if (item.Rating > 0)
+                    {
+                        @Html.DisplayFor(modelItem => item.Rating)
+                    }
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                    @Html.ActionLink("Details", "Details", new { id=item.Id }) |
+                    @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                </td>
+            </tr>
+        }
+    </table>
+</div>
