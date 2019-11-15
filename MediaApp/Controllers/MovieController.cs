@@ -8,13 +8,17 @@ using System.Data.SqlClient;
 using System.IO;
 
 namespace MediaApp.Controllers
-{ 
+{
     public class MovieController : BaseController
     {
         // GET: Movie
-        public ActionResult Index()
+        public ActionResult Index(string order)
         {
-            return View(GetMovieList());
+            if (order == null)
+            {
+                order = "Title";
+            }
+            return View(GetMovieList(order));
         }
 
         public ActionResult Create()
@@ -122,9 +126,9 @@ namespace MediaApp.Controllers
             return RedirectToAction("Index");
         }
 
-        private IList<Movie> GetMovieList()
+        private IList<Movie> GetMovieList(string order)
         {
-            List<Movie> movieList = BuildMovieList();
+            List<Movie> movieList = BuildMovieList(order);
             foreach(Movie mov in movieList)
             {
                 AddPeople(mov);
@@ -135,11 +139,11 @@ namespace MediaApp.Controllers
             return movieList;
         }
 
-        private List<Movie> BuildMovieList()
+        private List<Movie> BuildMovieList(string order)
         {
+            string ascDec = order == "Title" ? "ASC" : "DESC";
             var dbConn = dbConnection();
-            string queryString = "Select Id FROM dbo.Movie";
-
+            string queryString = "Select Id FROM dbo.Movie ORDER BY " + order + " " + ascDec;
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
             dbConn.Open();
 
