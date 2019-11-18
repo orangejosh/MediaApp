@@ -15,17 +15,9 @@ function loadDoc(page){
 }
 
 function parseDoc(data){
-	var regEx = /loadlate=".+/g;
-	while(match = regEx.exec(data)){
-		var regEx2 = /".+"/g;
-		match2 = regEx2.exec(match[0]);
-		var src = match2[0].substring(1, match2[0].length - 1);
-
-		movieList.push(src);
-	}
 
 	var i = 0;
-	regEx = /<span class="lister-item-index unbold text-primary">\d+\.<\/span>\s+<a href="\/title.+\s+>.+<\/a>/g;
+	var regEx = /<span class="lister-item-index unbold text-primary">\d+\.<\/span>\s+<a href="\/title.+\s+>.+<\/a>/g;
 	while(match = regEx.exec(data)){
 		var regEx2 = /<a.+\s*.+<\/a>/g
 		match2 = regEx2.exec(match[0]);
@@ -34,20 +26,9 @@ function parseDoc(data){
 		match3 = regEx3.exec(match2[0]);
 		var title = match3[0].substring(1, match3[0].length - 1);
 
-		movieList[i] += ";" + title;
-		i++;
+		movieList.push(title);
 	}
 
-	i = 0;
-	regEx = /<p class="text-muted">\s+.+</g;
-	while(match = regEx.exec(data)){
-		var regEx2 = />\s+.+</g;
-		match2 = regEx2.exec(match[0]);
-		var synopsis = match2[0].substring(1, match2[0].length - 1);
-
-		movieList[i] += ";" + synopsis.trim();
-		i++;
-	}
 
 	i = 0;
 	regEx = /<span class="lister-item-year text-muted unbold">.*</g;
@@ -61,7 +42,7 @@ function parseDoc(data){
 	}
 
 	i = 0;
-	regEx = /Director:\s+.+\s+>.+</g;
+	regEx = /Director[s]*:\s+.+\s+>.+</g;
 	while(match = regEx.exec(data)){
 		var regEx2 = />.*</g;
 		match = regEx2.exec(match[0]);
@@ -116,11 +97,35 @@ function parseDoc(data){
 		movieList[i] += ";" + rating;
 		i++;
 	}
+
+	i = 0;
+	regEx = /<p class="text-muted">\s+.+</g;
+	while(match = regEx.exec(data)){
+		var regEx2 = />\s+.+</g;
+		match2 = regEx2.exec(match[0]);
+		var synopsis = match2[0].substring(1, match2[0].length - 1);
+
+		movieList[i] += ";" + synopsis.trim();
+		i++;
+	}
+
+	i = 0;
+	regEx = /loadlate=".+/g;
+	while(match = regEx.exec(data)){
+		var regEx2 = /".+"/g;
+		match2 = regEx2.exec(match[0]);
+		var src = match2[0].substring(1, match2[0].length - 1);
+
+		movieList[i] += ";" + src;
+		i++;
+	}
 }
 
 function printList(){
 	for (var index in movieList){
 		console.log(movieList[index] + "\n");
+//		var str = movieList[index].split(";");
+//		console.log(str[1] + " -- " + str[4]);
 	}
 }
 
