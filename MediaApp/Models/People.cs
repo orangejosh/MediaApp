@@ -20,6 +20,12 @@ namespace MediaApp.Models
         {
             Movies = new List<Movie>();
         }
+        
+        public People(string name)
+        {
+            Name = name;
+            Movies = new List<Movie>();
+        }
 
         public People(int id, string name)
         {
