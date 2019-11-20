@@ -29,6 +29,28 @@
     top: 25px;
 }
 
+.movieTitle{
+    margin-top:0;
+    margin-bottom: 5px;
+}
+
+.movieImage {
+    height: 90px;
+}
+
 .navModel{
     margin-right: 20px;
+}
+
+.synopsisBox{
+    position: absolute;
+    width: 20%;
+    height: 60px;
+    overflow: hidden;
+}
+
+.line-clamp{
+    display:-webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }

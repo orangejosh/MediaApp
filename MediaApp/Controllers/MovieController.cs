@@ -179,7 +179,7 @@ namespace MediaApp.Controllers
             Movie movie = new Movie();
             var dbConn = dbConnection();
 
-            string queryString = "SELECT Id, Title, Year, Rating FROM dbo.Movie WHERE Id = " + id + ";";
+            string queryString = "SELECT Id, Title, Year, Rating, Synopsis FROM dbo.Movie WHERE Id = " + id + ";";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 
             try
@@ -192,6 +192,7 @@ namespace MediaApp.Controllers
                     movie.Title = reader.GetString(1);
                     movie.Year = reader.GetInt32(2);
                     movie.Rating = reader.GetInt32(3);
+                    movie.Synopsis = reader.GetString(4);
                 }
                 reader.Close();
             } 
@@ -235,7 +236,8 @@ namespace MediaApp.Controllers
                     if (reader.GetString(2) == "Director")
                     {
                         mov.Director = new People(reader.GetInt32(0), reader.GetString(1));
-                    } else if (reader.GetString(2) == "Actor")
+                    } 
+                    else if (reader.GetString(2) == "Actor")
                     {
                         mov.Cast.Add(new People(reader.GetInt32(0), reader.GetString(1)));
                     }
@@ -309,7 +311,8 @@ namespace MediaApp.Controllers
                     if (reader.GetString(3) != null)
                     {
                         mov.imgURL = reader.GetString(3);
-                    } else
+                    } 
+                    else
                     {
                         Image image = new Image();
                         image.Name = reader.GetString(0);
@@ -430,6 +433,18 @@ namespace MediaApp.Controllers
             }
         }
 
+        private void UpdateSynopsis(Movie mov, SqlConnection dbConn)
+        {
+            if (mov.Synopsis != null)
+            {
+                string queryString = "UPDATE dbo.Movie SET Synopsis = @sysnopsis WHERE Id = @movieId;";
+                SqlCommand cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@sysnopsis", mov.Synopsis);
+                cmd.Parameters.AddWithValue("@movieId", mov.Id);
+                ExecuteCmd(cmd, dbConn);
+            }
+        }
+
         private void UpdateImage(Movie mov, SqlConnection dbConn)
         {
             if (mov.ImageInput != null)
@@ -459,7 +474,8 @@ namespace MediaApp.Controllers
                 ExecuteCmd(cmd, dbConn);
 
                 reader.Dispose();
-            } else if(mov.imgURL != null)
+            } 
+            else if(mov.imgURL != null)
             {
                 string queryString = "INSERT INTO dbo.Image(Url) VALUES(@Url)";
                 SqlCommand cmd = new SqlCommand(queryString, dbConn);
@@ -532,6 +548,7 @@ namespace MediaApp.Controllers
                 UpdateActor(mov, dbConn);
                 UpdateGenre(mov, dbConn);
                 UpdateRating(mov, dbConn);
+                UpdateSynopsis(mov, dbConn);
                 UpdateImage(mov, dbConn);
             }
         }

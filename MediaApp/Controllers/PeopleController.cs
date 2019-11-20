@@ -80,7 +80,6 @@ namespace MediaApp.Controllers
             List<People> peopleList = new List<People>();
             var dbConn = dbConnection();
             string queryString = "SELECT Id, Name FROM dbo.People ORDER BY Name ASC;";
-            
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 
             try
@@ -173,7 +172,6 @@ namespace MediaApp.Controllers
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@personId", person.Id);
 
-
             try
             {
                 dbConn.Open();
@@ -184,7 +182,8 @@ namespace MediaApp.Controllers
                     if (reader.GetString(3) != null)
                     {
                         person.imgURL = reader.GetString(3);
-                    } else
+                    } 
+                    else
                     {
                         Image image = new Image();
                         image.Name = reader.GetString(0);

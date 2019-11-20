@@ -17,9 +17,8 @@
     {
         @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, null)
     }
-    @if (ViewBag.Index < 950){
-        @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
-    }
+    @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
+
     <table class="table">
         <tr>
             <th>
@@ -55,11 +54,16 @@
                         <img height="75" src=@imgData />
                     } else if (item.imgURL != null)
                     {
-                        <img height="75" src=@item.imgURL />
+                        <img class="movieImage" src=@item.imgURL />
                     }
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Title)
+                    <h4 class="movieTitle">@item.Title</h4>
+                    <div class="synopsisBox line-clamp">
+                        <p>
+                            @item.Synopsis
+                        </p>
+                    </div>
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Director.Name)
@@ -109,7 +113,5 @@
     {
         @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, null)
     }
-    @if (ViewBag.Index < 950){
-        @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
-    }
+    @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
 </div>
