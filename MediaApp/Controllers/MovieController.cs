@@ -144,11 +144,11 @@ namespace MediaApp.Controllers
             var dbConn = dbConnection();
             string queryString = "Select Id FROM dbo.Movie ORDER BY " + order + " " + ascDec;
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
-            dbConn.Open();
 
             List<Movie> movieList = new List<Movie>();
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 int i = 0;
                 while (reader.Read() && i < index + 50)
@@ -160,12 +160,16 @@ namespace MediaApp.Controllers
                     i++;
                 }
                 reader.Close();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
 
             return movieList;
         }
@@ -178,10 +182,9 @@ namespace MediaApp.Controllers
             string queryString = "SELECT Id, Title, Year, Rating FROM dbo.Movie WHERE Id = " + id + ";";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 
-            dbConn.Open();
-
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -191,12 +194,16 @@ namespace MediaApp.Controllers
                     movie.Rating = reader.GetInt32(3);
                 }
                 reader.Close();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
 
             return movie;
         }
@@ -218,10 +225,10 @@ namespace MediaApp.Controllers
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 
-            dbConn.Open();
 
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -234,12 +241,16 @@ namespace MediaApp.Controllers
                     }
                 }
                 reader.Close();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
         }
 
         private void AddGenre(Movie mov)
@@ -250,10 +261,10 @@ namespace MediaApp.Controllers
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 
-            dbConn.Open();
 
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -265,8 +276,11 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: " + e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
         }
 
         private void AddImage(Movie mov)
@@ -285,10 +299,10 @@ namespace MediaApp.Controllers
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 
-            dbConn.Open();
 
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -313,8 +327,11 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: " + e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
         }
 
         private void UpdateDirector(Movie mov, SqlConnection dbConn)

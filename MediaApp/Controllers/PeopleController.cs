@@ -26,10 +26,10 @@ namespace MediaApp.Controllers
             var dbConn = dbConnection();
             string queryString = "SELECT Name FROM dbo.People WHERE Id = " + id + ";";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
-            dbConn.Open();
 
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -41,7 +41,11 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            cmd.Dispose();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
 
             person.Movies = GetMovieList(id);
             AddImage(person);
@@ -78,10 +82,10 @@ namespace MediaApp.Controllers
             string queryString = "SELECT Id, Name FROM dbo.People ORDER BY Name ASC;";
             
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
-            dbConn.Open();
 
             try
             {
+                dbConn.Open();
                 int i = 0;
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read() && i < index + 50)
@@ -96,12 +100,16 @@ namespace MediaApp.Controllers
                     i++;
                 }
                 reader.Close();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
 
             return peopleList;
         }
@@ -126,19 +134,24 @@ namespace MediaApp.Controllers
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@id", id);
 
-            dbConn.Open();
-
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     Movie movie = new Movie(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2));
                     movieList.Add(movie);
                 }
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
             }
 
             return movieList;
@@ -160,10 +173,10 @@ namespace MediaApp.Controllers
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@personId", person.Id);
 
-            dbConn.Open();
 
             try
             {
+                dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -189,8 +202,11 @@ namespace MediaApp.Controllers
             {
                 System.Diagnostics.Debug.WriteLine("Error: " + e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
         }
 
         private void UpdateImage(People person, SqlConnection dbConn)

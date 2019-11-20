@@ -22,16 +22,20 @@ namespace MediaApp.Controllers
 		[NonAction]
 		protected void ExecuteCmd(SqlCommand cmd, SqlConnection dbConn)
 		{
-            dbConn.Open();
             try
             {
+                dbConn.Open();
                 cmd.ExecuteNonQuery();
-            } catch(Exception e)
+            } 
+            catch(Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: + " + e);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
 		}
 
 		[NonAction]
@@ -48,12 +52,16 @@ namespace MediaApp.Controllers
                     break;
                 }
                 reader.Close();
-            } catch (Exception e)
+            } 
+            catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
             }
-            cmd.Dispose();
-            dbConn.Close();
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
 
             return id;
 		}
