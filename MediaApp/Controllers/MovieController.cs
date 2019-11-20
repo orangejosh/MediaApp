@@ -14,11 +14,12 @@ namespace MediaApp.Controllers
         // GET: Movie
         public ActionResult Index(string order)
         {
+//            AddMovieData();
             if (order == null)
             {
                 order = "Title";
             }
-            return View(GetMovieList(order));
+            return View(GetMovieList(order, 0));
         }
 
         public ActionResult Create()
@@ -126,9 +127,9 @@ namespace MediaApp.Controllers
             return RedirectToAction("Index");
         }
 
-        private IList<Movie> GetMovieList(string order)
+        private IList<Movie> GetMovieList(string order, int index)
         {
-            List<Movie> movieList = BuildMovieList(order);
+            List<Movie> movieList = BuildMovieList(order, index);
             foreach(Movie mov in movieList)
             {
                 AddPeople(mov);
@@ -139,7 +140,7 @@ namespace MediaApp.Controllers
             return movieList;
         }
 
-        private List<Movie> BuildMovieList(string order)
+        private List<Movie> BuildMovieList(string order, int index)
         {
             string ascDec = order == "Title" ? "ASC" : "DESC";
             var dbConn = dbConnection();
@@ -151,9 +152,14 @@ namespace MediaApp.Controllers
             try
             {
                 SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+                int i = 0;
+                while (reader.Read() && i < index + 51)
                 {
-                    movieList.Add(GetMovie(reader.GetInt32(0)));
+                    if (i >= index)
+                    {
+                        movieList.Add(GetMovie(reader.GetInt32(0)));
+                    }
+                    i++;
                 }
                 reader.Close();
             } catch (Exception e)
@@ -270,7 +276,7 @@ namespace MediaApp.Controllers
             var dbConn = dbConnection();
             string queryString = 
                 "SELECT " +
-                    "Name, Type, Image " +
+                    "Name, Type, Image, Url " +
                 "FROM " +
                     "dbo.Movie AS m " +
                 "INNER JOIN " +
@@ -288,14 +294,20 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Image image = new Image();
-                    image.Name = reader.GetString(0);
-                    image.Type = reader.GetString(1);
+                    if (reader.GetString(3) != null)
+                    {
+                        mov.imgURL = reader.GetString(3);
+                    } else
+                    {
+                        Image image = new Image();
+                        image.Name = reader.GetString(0);
+                        image.Type = reader.GetString(1);
 
-                    byte[] imageData = (byte[])reader[2];
-                    image.Data = Convert.ToBase64String(imageData);
+                        byte[] imageData = (byte[])reader[2];
+                        image.Data = Convert.ToBase64String(imageData);
 
-                    mov.MovImage = image;
+                        mov.MovImage = image;
+                    }
                 }
                 reader.Close();
             }
@@ -432,6 +444,80 @@ namespace MediaApp.Controllers
                 ExecuteCmd(cmd, dbConn);
 
                 reader.Dispose();
+            } else if(mov.imgURL != null)
+            {
+                string queryString = "INSERT INTO dbo.Image(Url) VALUES(@Url)";
+                SqlCommand cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Url", mov.imgURL);
+                ExecuteCmd(cmd, dbConn);
+
+                queryString = "SELECT Id FROM dbo.Image WHERE Url = @Url;";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Url", mov.imgURL);
+                int imageId = GetId(cmd, dbConn);
+
+                queryString = "UPDATE dbo.Movie SET ImageId = @imageId WHERE Id = @movieId;";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@imageId", imageId);
+                cmd.Parameters.AddWithValue("@movieId", mov.Id);
+                ExecuteCmd(cmd, dbConn);
+
+            }
+        }
+
+        private void AddMovieData()
+        {
+            var fileContents = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/movieList.txt"));
+            string[] movies = fileContents.Split('\n');
+            foreach (var movie in movies)
+            {
+                string[] data = movie.Split(';');
+                if (data[0] == "\r")
+                {
+                    continue;
+                }
+                Movie mov = new Movie();
+
+                mov.Title = data[0];
+                mov.Year = Int32.Parse(data[1]);
+                mov.Director = new People(data[2]);
+
+                string[] actors = data[3].Split(',');
+                foreach(var actor in actors)
+                {
+                    People person = new People(actor.Trim());
+                    mov.Cast.Add(person);
+                }
+
+                string[] genres = data[4].Split(',');
+                foreach(var genre in genres)
+                {
+                    mov.Genre.Add(genre.Trim());
+                }
+
+                mov.Rating = (int)(float.Parse(data[5]) * 10);
+                mov.Synopsis = data[6];
+                mov.imgURL = data[7];
+
+                var dbConn = dbConnection();
+
+                string queryString = "INSERT INTO dbo.Movie(Title, Year) VALUES (@title, @year);";
+                SqlCommand cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@title", mov.Title);
+                cmd.Parameters.AddWithValue("@year", mov.Year);
+                ExecuteCmd(cmd, dbConn);
+
+                queryString = "SELECT Id FROM dbo.Movie WHERE Title = @title AND Year = @year;";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@title", mov.Title);
+                cmd.Parameters.AddWithValue("@year", mov.Year);
+                mov.Id = GetId(cmd, dbConn);
+
+                UpdateDirector(mov, dbConn);
+                UpdateActor(mov, dbConn);
+                UpdateGenre(mov, dbConn);
+                UpdateRating(mov, dbConn);
+                UpdateImage(mov, dbConn);
             }
         }
     }

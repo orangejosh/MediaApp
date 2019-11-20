@@ -11,13 +11,13 @@
 }
 
 .modelTitle {
-    position:relative;
+    position:fixed;
     padding-top: 15px;
     padding-left: 15px;
 }
 
 #modelCurve{
-    position: absolute;
+    position: fixed;
     width: 100%;
     background: radial-gradient(circle at right, #0000, #0000 90%, #0000 90%, #808080 90%);
 }
