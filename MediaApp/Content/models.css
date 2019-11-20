@@ -38,13 +38,19 @@
     height: 90px;
 }
 
+.navPage {
+    display: inline-block;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
 .navModel{
     margin-right: 20px;
 }
 
 .synopsisBox{
     position: absolute;
-    width: 20%;
+    width: 30%;
     height: 60px;
     overflow: hidden;
 }

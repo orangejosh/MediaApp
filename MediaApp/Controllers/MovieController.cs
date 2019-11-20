@@ -102,8 +102,13 @@ namespace MediaApp.Controllers
         {
             var dbConn = dbConnection();
 
-            string queryString = "DELETE FROM dbo.MovPeople WHERE MovieId = @movieId;";
+            string queryString = "DELETE FROM dbo.Directors WHERE MovieId = @movieId;";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@movieId", mov.Id);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Actors WHERE MovieId = @movieId;";
+            cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 			ExecuteCmd(cmd, dbConn);
 
@@ -163,7 +168,7 @@ namespace MediaApp.Controllers
             } 
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+                System.Diagnostics.Debug.WriteLine("Error MovieController: "+ e.Message);
             }
             finally
             {
@@ -198,7 +203,7 @@ namespace MediaApp.Controllers
             } 
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+                System.Diagnostics.Debug.WriteLine("Error MovieController: "+ e.Message);
             }
             finally
             {
@@ -211,33 +216,45 @@ namespace MediaApp.Controllers
 
         private void AddPeople(Movie mov) 
         {
-            var dbConn = dbConnection();
-
             string queryString =
                 "SELECT " +
-                    "p.Id, p.Name, mp.Job " +
+                    "p.Id, p.Name " +
                 "FROM " +
-                    "dbo.MovPeople AS mp " +
+                    "dbo.Directors AS d " +
                 "INNER JOIN " +
-                    "dbo.People AS p ON mp.PeopleId = p.Id " +
+                    "dbo.People AS p ON d.PeopleId = p.Id " +
                 "WHERE " +
-                    "mp.MovieId = @movieId;";
+                    "d.MovieId = @movieId;";
+            QueryPeople(mov, "Directors", queryString);
 
+            queryString =
+                "SELECT " +
+                    "p.Id, p.Name " +
+                "FROM " +
+                    "dbo.Actors AS d " +
+                "INNER JOIN " +
+                    "dbo.People AS p ON d.PeopleId = p.Id " +
+                "WHERE " +
+                    "d.MovieId = @movieId;";
+            QueryPeople(mov, "Actors", queryString);
+        }
+
+        private void QueryPeople(Movie mov, string job, string queryString)
+        {
+            var dbConn = dbConnection();
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
-
-
             try
             {
                 dbConn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    if (reader.GetString(2) == "Director")
+                    if (job == "Directors")
                     {
                         mov.Director = new People(reader.GetInt32(0), reader.GetString(1));
                     } 
-                    else if (reader.GetString(2) == "Actor")
+                    else if (job == "Actors")
                     {
                         mov.Cast.Add(new People(reader.GetInt32(0), reader.GetString(1)));
                     }
@@ -246,7 +263,7 @@ namespace MediaApp.Controllers
             } 
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+                System.Diagnostics.Debug.WriteLine("Error MovieController: "+ e.Message);
             }
             finally
             {
@@ -255,6 +272,7 @@ namespace MediaApp.Controllers
             }
         }
 
+
         private void AddGenre(Movie mov)
         {
             var dbConn = dbConnection();
@@ -262,7 +280,6 @@ namespace MediaApp.Controllers
             string queryString = "SELECT Genre FROM dbo.Genre WHERE MovieId = @movieId;";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
-
 
             try
             {
@@ -276,7 +293,7 @@ namespace MediaApp.Controllers
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: " + e.Message);
+                System.Diagnostics.Debug.WriteLine("Error MovieController: " + e.Message);
             }
             finally
             {
@@ -300,7 +317,6 @@ namespace MediaApp.Controllers
 
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
-
 
             try
             {
@@ -337,9 +353,9 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void UpdateDirector(Movie mov, SqlConnection dbConn)
+        public void UpdateDirector(Movie mov, SqlConnection dbConn)
         {
-            string queryString = "DELETE FROM dbo.MovePeple WHERE MovieId = @movieId AND Job = 'Director';";
+            string queryString = "DELETE FROM dbo.Directors WHERE MovieId = @movieId;";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
             cmd.Parameters.AddWithValue("@movieId", mov.Id);
             ExecuteCmd(cmd, dbConn);
@@ -356,10 +372,7 @@ namespace MediaApp.Controllers
                 cmd.Parameters.AddWithValue("@name", mov.Director.Name);
                 int peopleId = GetId(cmd, dbConn);
 
-
-                queryString = 
-                    "INSERT INTO dbo.MovPeople(PeopleId, MovieId, Job) " +
-                    "VALUES(@peopleId, @movieId, 'Director');";
+                queryString = "INSERT INTO dbo.Directors (PeopleId, MovieId) VALUES (@peopleId, @movieId);";
                 cmd = new SqlCommand(queryString, dbConn);
                 cmd.Parameters.AddWithValue("@peopleId", peopleId);
                 cmd.Parameters.AddWithValue("@movieId", mov.Id);
@@ -367,9 +380,9 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void UpdateActor(Movie mov, SqlConnection dbConn)
+        public void UpdateActor(Movie mov, SqlConnection dbConn)
         {
-            string queryString = "DELETE FROM dbo.MovePeple WHERE MovieId = @movieId AND Job = 'Actor';";
+            string queryString = "DELETE FROM dbo.Actors WHERE MovieId = @movieId;";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
             cmd.Parameters.AddWithValue("@movieId", mov.Id);
             ExecuteCmd(cmd, dbConn);
@@ -388,9 +401,7 @@ namespace MediaApp.Controllers
                     cmd.Parameters.AddWithValue("@name", actor.Name);
                     int peopleId = GetId(cmd, dbConn);
 
-                    queryString = 
-                        "INSERT INTO dbo.MovPeople(PeopleId, MovieId, Job) " +
-                        "VALUES(@peopleId, @movieId, 'Actor');";
+                    queryString = "INSERT INTO dbo.Actors (PeopleId, MovieId) VALUES (@peopleId, @movieId);";
                     cmd = new SqlCommand(queryString, dbConn);
                     cmd.Parameters.AddWithValue("@peopleId", peopleId);
                     cmd.Parameters.AddWithValue("@movieId", mov.Id);
@@ -399,7 +410,7 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void UpdateGenre(Movie mov, SqlConnection dbConn)
+        public void UpdateGenre(Movie mov, SqlConnection dbConn)
         {
             string queryString = "DELETE FROM dbo.Genre WHERE MovieId = @movieId;";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
@@ -421,7 +432,7 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void UpdateRating(Movie mov, SqlConnection dbConn)
+        public void UpdateRating(Movie mov, SqlConnection dbConn)
         {
             if (mov.Rating > 0)
             {
@@ -433,7 +444,7 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void UpdateSynopsis(Movie mov, SqlConnection dbConn)
+        public void UpdateSynopsis(Movie mov, SqlConnection dbConn)
         {
             if (mov.Synopsis != null)
             {
@@ -445,7 +456,7 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void UpdateImage(Movie mov, SqlConnection dbConn)
+        public void UpdateImage(Movie mov, SqlConnection dbConn)
         {
             if (mov.ImageInput != null)
             {
@@ -496,61 +507,5 @@ namespace MediaApp.Controllers
             }
         }
 
-        private void AddMovieData()
-        {
-            var fileContents = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/movieList.txt"));
-            string[] movies = fileContents.Split('\n');
-            foreach (var movie in movies)
-            {
-                string[] data = movie.Split(';');
-                if (data[0] == "\r")
-                {
-                    continue;
-                }
-                Movie mov = new Movie();
-
-                mov.Title = data[0];
-                mov.Year = Int32.Parse(data[1]);
-                mov.Director = new People(data[2]);
-
-                string[] actors = data[3].Split(',');
-                foreach(var actor in actors)
-                {
-                    People person = new People(actor.Trim());
-                    mov.Cast.Add(person);
-                }
-
-                string[] genres = data[4].Split(',');
-                foreach(var genre in genres)
-                {
-                    mov.Genre.Add(genre.Trim());
-                }
-
-                mov.Rating = (int)(float.Parse(data[5]) * 10);
-                mov.Synopsis = data[6];
-                mov.imgURL = data[7];
-
-                var dbConn = dbConnection();
-
-                string queryString = "INSERT INTO dbo.Movie(Title, Year) VALUES (@title, @year);";
-                SqlCommand cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@title", mov.Title);
-                cmd.Parameters.AddWithValue("@year", mov.Year);
-                ExecuteCmd(cmd, dbConn);
-
-                queryString = "SELECT Id FROM dbo.Movie WHERE Title = @title AND Year = @year;";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@title", mov.Title);
-                cmd.Parameters.AddWithValue("@year", mov.Year);
-                mov.Id = GetId(cmd, dbConn);
-
-                UpdateDirector(mov, dbConn);
-                UpdateActor(mov, dbConn);
-                UpdateGenre(mov, dbConn);
-                UpdateRating(mov, dbConn);
-                UpdateSynopsis(mov, dbConn);
-                UpdateImage(mov, dbConn);
-            }
-        }
     }
 }

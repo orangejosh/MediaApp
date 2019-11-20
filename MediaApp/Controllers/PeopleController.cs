@@ -12,15 +12,15 @@ namespace MediaApp.Controllers
     public class PeopleController : BaseController
     {
         // GET: People
-        public ActionResult Index(int index)
+        public ActionResult Index(int index, string job)
         {
-//            DeleteEverything();
-//            AddPeopleImages();
             ViewBag.Index = index;
-            return View(GetPeopleList(index));
+            ViewBag.Job = job;
+            return View(GetPeopleList(index, job));
         }
 
-        public ActionResult Edit(int id)
+        // TODO Update this for the new database structure.
+        public ActionResult Edit(int id, string job)
         {
             People person = new People();
             var dbConn = dbConnection();
@@ -39,7 +39,7 @@ namespace MediaApp.Controllers
                 }
             } catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+                System.Diagnostics.Debug.WriteLine("Error PeopleController: "+ e.Message);
             }
             finally
             {
@@ -47,12 +47,13 @@ namespace MediaApp.Controllers
                 dbConn.Close();
             }
 
-            person.Movies = GetMovieList(id);
+            person.Movies = GetMovieList(id, job);
             AddImage(person);
 
             return View(person);
         }
 
+        // TODO Update this for the new database structure.
         [HttpPost]
         public ActionResult Edit(People people)
         {
@@ -75,11 +76,24 @@ namespace MediaApp.Controllers
             return RedirectToAction("Index");
         }
 
-        private List<People> GetPeopleList(int index)
+        private List<People> GetPeopleList(int index, string job)
         {
             List<People> peopleList = new List<People>();
             var dbConn = dbConnection();
-            string queryString = "SELECT Id, Name FROM dbo.People ORDER BY Name ASC;";
+
+            string queryString =
+                "SELECT " +
+                    "p.Id, p.Name " +
+                "FROM " +
+                    "dbo.People AS p " +
+                "INNER JOIN " +
+                    "dbo." + job + " AS j " +
+                "ON " +
+                    "p.Id = j.PeopleId " +
+                "GROUP BY " +
+                    "p.Id, p.Name " +
+                "ORDER BY " +
+                    "p.Name ASC;"; 
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
 
             try
@@ -92,7 +106,7 @@ namespace MediaApp.Controllers
                     if (i >= index)
                     {
                         People person = new People(reader.GetInt32(0), reader.GetString(1));
-                        person.Movies = GetMovieList(reader.GetInt32(0));
+                        person.Movies = GetMovieList(reader.GetInt32(0), job);
                         AddImage(person);
                         peopleList.Add(person);
                     }
@@ -102,7 +116,7 @@ namespace MediaApp.Controllers
             } 
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+                System.Diagnostics.Debug.WriteLine("Error PeopleController: "+ e.Message);
             }
             finally
             {
@@ -113,7 +127,7 @@ namespace MediaApp.Controllers
             return peopleList;
         }
 
-        private List<Movie> GetMovieList(int id)
+        private List<Movie> GetMovieList(int id, string job)
         {
             List<Movie> movieList = new List<Movie>();
             var dbConn = dbConnection();
@@ -124,13 +138,13 @@ namespace MediaApp.Controllers
                 "FROM " +
                     "dbo.Movie AS m " +
                 "INNER JOIN " +
-                    "dbo.MovPeople AS mp ON m.Id = mp.MovieId " +
+                    "dbo." + job + " AS j ON m.Id = j.MovieId " +
                 "INNER JOIN " +
-                    "dbo.People AS p ON mp.PeopleId = p.Id " +
+                    "dbo.People AS P ON j.PeopleId = p.Id " +
                 "WHERE " +
                     "p.Id = @id;";
-
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@job", job);
 			cmd.Parameters.AddWithValue("@id", id);
 
             try
@@ -239,71 +253,5 @@ namespace MediaApp.Controllers
                 reader.Dispose();
             }
         }
-
-        private void AddPeopleImages()
-        {
-            var fileContents = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/imageList.txt"));
-            string[] images = fileContents.Split('\n');
-            foreach (var imgData in images)
-            {
-                string[] data = imgData.Split(';');
-                string name = data[0];
-                string imgUrl = data[1];
-
-                var dbConn = dbConnection();
-
-                string queryString = "SELECT Id FROM dbo.People WHERE Name = @Name;";
-                SqlCommand cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@Name", name);
-                int peopleId = GetId(cmd, dbConn);
-
-                if (peopleId < 0 || imgUrl == "NULL\r")
-                {
-                    continue;
-                }
-
-                queryString = "INSERT INTO dbo.Image(Url) VALUES(@Url)";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@Url", imgUrl);
-                ExecuteCmd(cmd, dbConn);
-
-                queryString = "SELECT Id FROM dbo.Image WHERE Url = @Url;";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@Url", imgUrl);
-                int imageId = GetId(cmd, dbConn);
-
-                queryString = "UPDATE dbo.People SET ImageId = @imageId WHERE Id = @peopleId;";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@imageId", imageId);
-                cmd.Parameters.AddWithValue("@peopleId", peopleId);
-                ExecuteCmd(cmd, dbConn);
-            }
-        }
-
-        private void DeleteEverything()
-        {
-            var dbConn = dbConnection();
-
-            string queryString = "DELETE FROM dbo.MovPeople;";
-            SqlCommand cmd = new SqlCommand(queryString, dbConn);
-			ExecuteCmd(cmd, dbConn);
-
-            queryString = "DELETE FROM dbo.Genre;";
-            cmd = new SqlCommand(queryString, dbConn);
-			ExecuteCmd(cmd, dbConn);
-
-            queryString = "DELETE FROM dbo.Image;";
-            cmd = new SqlCommand(queryString, dbConn);
-			ExecuteCmd(cmd, dbConn);
-
-            queryString = "DELETE FROM dbo.People;";
-            cmd = new SqlCommand(queryString, dbConn);
-			ExecuteCmd(cmd, dbConn);
-
-            queryString = "DELETE FROM dbo.Movie;";
-            cmd = new SqlCommand(queryString, dbConn);
-			ExecuteCmd(cmd, dbConn);
-        }
-
     }
 }

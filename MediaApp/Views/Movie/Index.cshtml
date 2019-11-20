@@ -15,9 +15,9 @@
 
     @if (ViewBag.Index > 1)
     {
-        @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, null)
+        @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, new { @class = "navPage" })
     }
-    @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
+    @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, new { @class = "navPage" })
 
     <table class="table">
         <tr>
@@ -111,7 +111,7 @@
     </table>
     @if (ViewBag.Index > 1)
     {
-        @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, null)
+        @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, new { @class = "navPage" })
     }
-    @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
+    @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, new { @class = "navPage" })
 </div>
