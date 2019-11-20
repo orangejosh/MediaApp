@@ -11,6 +11,15 @@
     <p>
         @Html.ActionLink("Create New", "Create")
     </p>
+    <br />
+
+    @if (ViewBag.Index > 1)
+    {
+        @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, null)
+    }
+    @if (ViewBag.Index < 950){
+        @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
+    }
     <table class="table">
         <tr>
             <th>
@@ -43,7 +52,7 @@
                     @if (item.MovImage != null)
                     {
                         var imgData = "data:" + @item.MovImage.Type + ";base64," + @item.MovImage.Data;
-                        <img width="75" height="75" src=@imgData />
+                        <img height="75" src=@imgData />
                     } else if (item.imgURL != null)
                     {
                         <img height="75" src=@item.imgURL />
@@ -96,4 +105,11 @@
             </tr>
         }
     </table>
+    @if (ViewBag.Index > 1)
+    {
+        @Html.ActionLink("<< Previous ", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index - 50}, null)
+    }
+    @if (ViewBag.Index < 950){
+        @Html.ActionLink(" Next >>", "Index", "Movie", new { order = ViewBag.Order, index = ViewBag.Index + 50}, null)
+    }
 </div>

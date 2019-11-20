@@ -11,8 +11,8 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li>@Html.ActionLink("Movies", "Index", "Movie", new { order = "Title" }, null)</li>
-                <li>@Html.ActionLink("Actors", "Index", "People")</li>
+                <li>@Html.ActionLink("Movies", "Index", "Movie", new { order = "Title", index = 0 }, null)</li>
+                <li>@Html.ActionLink("Actors", "Index", "People", new { index = 0 }, null)</li>
             </ul>
         </div>
     </div>

@@ -12,14 +12,12 @@ namespace MediaApp.Controllers
     public class MovieController : BaseController
     {
         // GET: Movie
-        public ActionResult Index(string order)
+        public ActionResult Index(string order, int index)
         {
 //            AddMovieData();
-            if (order == null)
-            {
-                order = "Title";
-            }
-            return View(GetMovieList(order, 0));
+            ViewBag.Order = order;
+            ViewBag.Index = index;
+            return View(GetMovieList(order, index));
         }
 
         public ActionResult Create()
@@ -153,7 +151,7 @@ namespace MediaApp.Controllers
             {
                 SqlDataReader reader = cmd.ExecuteReader();
                 int i = 0;
-                while (reader.Read() && i < index + 51)
+                while (reader.Read() && i < index + 50)
                 {
                     if (i >= index)
                     {

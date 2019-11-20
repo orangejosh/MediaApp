@@ -15,6 +15,7 @@ namespace MediaApp.Models
         public HttpPostedFileBase ImageInput { get; set; }
         [Display(Name = "")]
         public Image PeopleImage { get; set; }
+        public string imgURL { get; set; }
 
         public People()
         {

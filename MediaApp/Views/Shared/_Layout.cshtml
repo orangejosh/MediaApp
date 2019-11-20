@@ -20,7 +20,7 @@
         <div class="dotContainer">
             <div class="dot">
                 <span class="dotHelper"></span>
-                <a href='@Url.Action("Index", "Movie", new { order = "Title" })' >
+                <a href='@Url.Action("Index", "Movie", new { order = "Title", index = 0 })' >
                     <img src="~/Content/Images/cameraIcon.png" />
                 </a>
             </div>
@@ -30,7 +30,7 @@
         <div class="dotContainer">
             <div class="dot">
                 <span class="dotHelper"></span>
-                <a href='@Url.Action("Index", "Movie", new { order = "Rating" })' >
+                <a href='@Url.Action("Index", "Movie", new { order = "Rating", index = 0 })' >
                     <img src="~/Content/Images/starIcon.png" />
                 </a>
             </div>
@@ -40,7 +40,7 @@
         <div class="dotContainer">
             <div class="dot">
                 <span class="dotHelper"></span>
-                <a href='@Url.Action("Index", "Movie", new { order = "Year" })' >
+                <a href='@Url.Action("Index", "Movie", new { order = "Year", index = 0 })' >
                     <img src="~/Content/Images/yearIcon.png" />
                 </a>
             </div>

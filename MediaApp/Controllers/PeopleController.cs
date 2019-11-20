@@ -12,9 +12,12 @@ namespace MediaApp.Controllers
     public class PeopleController : BaseController
     {
         // GET: People
-        public ActionResult Index()
+        public ActionResult Index(int index)
         {
-            return View(GetPeopleList());
+//            DeleteEverything();
+//            AddPeopleImages();
+            ViewBag.Index = index;
+            return View(GetPeopleList(index));
         }
 
         public ActionResult Edit(int id)
@@ -68,24 +71,29 @@ namespace MediaApp.Controllers
             return RedirectToAction("Index");
         }
 
-        private List<People> GetPeopleList()
+        private List<People> GetPeopleList(int index)
         {
             List<People> peopleList = new List<People>();
             var dbConn = dbConnection();
-            string queryString = "SELECT Id, Name FROM dbo.People;";
+            string queryString = "SELECT Id, Name FROM dbo.People ORDER BY Name ASC;";
             
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
             dbConn.Open();
 
             try
             {
+                int i = 0;
                 SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
+                while (reader.Read() && i < index + 50)
                 {
-                    People person = new People(reader.GetInt32(0), reader.GetString(1));
-                    person.Movies = GetMovieList(reader.GetInt32(0));
-                    AddImage(person);
-                    peopleList.Add(person);
+                    if (i >= index)
+                    {
+                        People person = new People(reader.GetInt32(0), reader.GetString(1));
+                        person.Movies = GetMovieList(reader.GetInt32(0));
+                        AddImage(person);
+                        peopleList.Add(person);
+                    }
+                    i++;
                 }
                 reader.Close();
             } catch (Exception e)
@@ -141,7 +149,7 @@ namespace MediaApp.Controllers
             var dbConn = dbConnection();
             string queryString = 
                 "SELECT " +
-                    "i.Name, i.Type, i.Image " +
+                    "i.Name, i.Type, i.Image, i.Url " +
                 "FROM " +
                     "dbo.People AS p " +
                 "INNER JOIN " +
@@ -159,14 +167,21 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Image image = new Image();
-                    image.Name = reader.GetString(0);
-                    image.Type = reader.GetString(1);
 
-                    byte[] imageData = (byte[])reader[2];
-                    image.Data = Convert.ToBase64String(imageData);
+                    if (reader.GetString(3) != null)
+                    {
+                        person.imgURL = reader.GetString(3);
+                    } else
+                    {
+                        Image image = new Image();
+                        image.Name = reader.GetString(0);
+                        image.Type = reader.GetString(1);
 
-                    person.PeopleImage = image;
+                        byte[] imageData = (byte[])reader[2];
+                        image.Data = Convert.ToBase64String(imageData);
+
+                        person.PeopleImage = image;
+                    }
                 }
                 reader.Close();
             }
@@ -209,5 +224,71 @@ namespace MediaApp.Controllers
                 reader.Dispose();
             }
         }
+
+        private void AddPeopleImages()
+        {
+            var fileContents = System.IO.File.ReadAllText(Server.MapPath(@"~/App_Data/imageList.txt"));
+            string[] images = fileContents.Split('\n');
+            foreach (var imgData in images)
+            {
+                string[] data = imgData.Split(';');
+                string name = data[0];
+                string imgUrl = data[1];
+
+                var dbConn = dbConnection();
+
+                string queryString = "SELECT Id FROM dbo.People WHERE Name = @Name;";
+                SqlCommand cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Name", name);
+                int peopleId = GetId(cmd, dbConn);
+
+                if (peopleId < 0 || imgUrl == "NULL\r")
+                {
+                    continue;
+                }
+
+                queryString = "INSERT INTO dbo.Image(Url) VALUES(@Url)";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Url", imgUrl);
+                ExecuteCmd(cmd, dbConn);
+
+                queryString = "SELECT Id FROM dbo.Image WHERE Url = @Url;";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Url", imgUrl);
+                int imageId = GetId(cmd, dbConn);
+
+                queryString = "UPDATE dbo.People SET ImageId = @imageId WHERE Id = @peopleId;";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@imageId", imageId);
+                cmd.Parameters.AddWithValue("@peopleId", peopleId);
+                ExecuteCmd(cmd, dbConn);
+            }
+        }
+
+        private void DeleteEverything()
+        {
+            var dbConn = dbConnection();
+
+            string queryString = "DELETE FROM dbo.MovPeople;";
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Genre;";
+            cmd = new SqlCommand(queryString, dbConn);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Image;";
+            cmd = new SqlCommand(queryString, dbConn);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.People;";
+            cmd = new SqlCommand(queryString, dbConn);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Movie;";
+            cmd = new SqlCommand(queryString, dbConn);
+			ExecuteCmd(cmd, dbConn);
+        }
+
     }
 }
