@@ -1,6 +1,7 @@
 var movieList = [];
 var page = process.argv.slice(2);
 
+// Downloads the IMDb page from the top 1000 movies given the page number argument.
 function loadDoc(page){
 	var XMLHTTPRequest = require("xmlhttprequest").XMLHttpRequest;
 	var xhttp = new XMLHTTPRequest();
@@ -14,8 +15,8 @@ function loadDoc(page){
 	xhttp.send();
 }
 
+// Parses the page for the title, year, director, actors, genre, rating, synopis, and image link for each movie.
 function parseDoc(data){
-
 	var i = 0;
 	var regEx = /<span class="lister-item-index unbold text-primary">\d+\.<\/span>\s+<a href="\/title.+\s+>.+<\/a>/g;
 	while(match = regEx.exec(data)){
@@ -124,8 +125,6 @@ function parseDoc(data){
 function printList(){
 	for (var index in movieList){
 		console.log(movieList[index] + "\n");
-//		var str = movieList[index].split(";");
-//		console.log(str[1] + " -- " + str[4]);
 	}
 }
 
