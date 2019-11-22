@@ -159,7 +159,7 @@ namespace MediaApp.Controllers
             } 
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: "+ e.Message);
+                System.Diagnostics.Debug.WriteLine("Error PeopleController:"+ e.Message);
             }
             finally
             {
@@ -213,7 +213,7 @@ namespace MediaApp.Controllers
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("Error: " + e.Message);
+                System.Diagnostics.Debug.WriteLine("Error PeopleController: " + e.Message);
             }
             finally
             {
