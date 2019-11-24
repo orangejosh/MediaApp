@@ -14,14 +14,15 @@ namespace MediaApp.Controllers
         // GET: Movie
         public ActionResult Index(string order, int index)
         {
-//            AddMovieData();
             ViewBag.Order = order;
             ViewBag.Index = index;
             return View(GetMovieList(order, index));
         }
 
-        public ActionResult Create()
+        public ActionResult Create(string order, int index)
         {
+            ViewBag.Order = order;
+            ViewBag.Index = index;
             return View();
         }
 
@@ -42,21 +43,25 @@ namespace MediaApp.Controllers
 			cmd.Parameters.AddWithValue("@year", mov.Year);
 			mov.Id = GetId(cmd, dbConn);
 
+            UpdateSynopsis(mov, dbConn);
             UpdateDirector(mov, dbConn);
             UpdateActor(mov, dbConn);
             UpdateGenre(mov, dbConn);
             UpdateRating(mov, dbConn);
             UpdateImage(mov, dbConn);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { order = mov.Order, index = mov.Index });
         }
 
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int id, string order, int index)
         {
             Movie mov = GetMovie(id);
             AddPeople(mov);
             AddGenre(mov);
             AddImage(mov);
+
+            ViewBag.Order = order;
+            ViewBag.Index = index;
 
             return View(mov);
         }
@@ -70,7 +75,7 @@ namespace MediaApp.Controllers
                 "UPDATE " +
                     "dbo.Movie " +
                 "SET " +
-                    "Title = @movieTitle, @year " +
+                    "Title = @movieTitle, Year = @year " +
                 "WHERE " +
                     "Id = @movieId;";
 			SqlCommand cmd = new SqlCommand(queryString, dbConn);
@@ -79,15 +84,17 @@ namespace MediaApp.Controllers
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 			ExecuteCmd(cmd, dbConn);
 
+            UpdateSynopsis(mov, dbConn);
             UpdateDirector(mov, dbConn);
             UpdateActor(mov, dbConn);
             UpdateGenre(mov, dbConn);
             UpdateRating(mov, dbConn);
             UpdateImage(mov, dbConn);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { order = mov.Order, index = mov.Index });
         }
 
+        //TODO update to work with new data
         public ActionResult Details(int id)
         {
             Movie mov = GetMovie(id);
@@ -127,7 +134,7 @@ namespace MediaApp.Controllers
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 			ExecuteCmd(cmd, dbConn);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { order = mov.Order, index = mov.Index });
         }
 
         private IList<Movie> GetMovieList(string order, int index)
@@ -324,11 +331,7 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    if (reader.GetString(3) != null)
-                    {
-                        mov.imgURL = reader.GetString(3);
-                    } 
-                    else
+                    if (!reader.IsDBNull(0))
                     {
                         Image image = new Image();
                         image.Name = reader.GetString(0);
@@ -338,6 +341,10 @@ namespace MediaApp.Controllers
                         image.Data = Convert.ToBase64String(imageData);
 
                         mov.MovImage = image;
+                    }
+                    else if (!reader.IsDBNull(3))
+                    {
+                        mov.imgURL = reader.GetString(3);
                     }
                 }
                 reader.Close();
@@ -506,6 +513,5 @@ namespace MediaApp.Controllers
 
             }
         }
-
     }
 }

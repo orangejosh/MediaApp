@@ -21,11 +21,14 @@ namespace MediaApp.Models
         public int Year { get; set; }
         public int? Rating { get; set; }
         public string Synopsis { get; set; }
-        [Display(Name = "Movie Image")]
+        [Display(Name = "Image")]
         public HttpPostedFileBase ImageInput { get; set; }
-        [Display(Name = "")]
+        [Display(Name = "Image")]
         public Image MovImage { get; set; }
         public string imgURL { get; set; }
+        public string Order { get; set; }
+        public int Index { get; set; }
+
         public Movie()
         {
             Cast = new List<People>();

@@ -9,7 +9,7 @@
 
 <div class="movieTable">
     <p>
-        @Html.ActionLink("Create New", "Create")
+        @Html.ActionLink("Create New", "Create", new { order = ViewBag.Order, index = ViewBag.Index })
     </p>
     <br />
 
@@ -77,7 +77,6 @@
                             break;
                         }
                         <p class="wordList">@item.Cast[i].Name</p>
-
                     }
                 </td>
                 <td>
@@ -89,7 +88,6 @@
                             break;
                         }
                         <p class="wordList">@item.Genre[i]</p>
-
                     }
                 </td>
                 <td>
@@ -102,9 +100,9 @@
                     }
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id=item.Id }) |
+                    @Html.ActionLink("Edit", "Edit", new { id=item.Id, order = ViewBag.Order, index = ViewBag.Index }) |
                     @Html.ActionLink("Details", "Details", new { id=item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id=item.Id })
+                    @Html.ActionLink("Delete", "Delete", new { id=item.Id, order = ViewBag.Order, index = ViewBag.Index })
                 </td>
             </tr>
         }
