@@ -33,7 +33,8 @@ namespace MediaApp
                       "~/Content/site.css",
                       "~/Content/create.css",
                       "~/Content/models.css",
-                      "~/Content/index.css")
+                      "~/Content/index.css",
+                      "~/Content/detail.css")
                       );
         }
     }

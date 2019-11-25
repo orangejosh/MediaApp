@@ -1,0 +1,60 @@
+﻿.movieDetailContainer{
+    position:absolute;
+    left:15%;
+    width:85%;
+    top:75px;
+}
+
+.movImage{
+    height:250px;
+    float:left;
+}
+
+.movIntro{
+    display:inline-block;
+    padding-left:50px;
+    width: 30%;
+}
+
+.movTitle{
+
+}
+
+.movSynopsis{
+}
+
+.movDirectorContainer{
+    display:inline-block;
+    vertical-align:top;
+    padding-left:50px;
+    position:relative;
+    top:50px;
+}
+
+.movDirectorLabel{
+
+}
+
+.movDirector{
+
+}
+
+.movActorLabel{
+
+}
+
+.movActor{
+
+}
+
+.movGenre{
+    display:inline-block;
+}
+
+.movYear{
+
+}
+
+.movRating{
+
+}

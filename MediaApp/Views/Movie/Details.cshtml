@@ -1,50 +1,46 @@
 ﻿@model MediaApp.Models.Movie
 
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_ModelIndexLayout.cshtml";
 }
 
-<!DOCTYPE html>
+<h2 class="modelTitle">Movie<br />Details</h2>
+<div class="movieDetailContainer">
+    @if (Model.MovImage != null)
+    {
+        var imgData = "data:" + @Model.MovImage.Type + ";base64," + @Model.MovImage.Data;
+        <img class ="movImage" src=@imgData />
+    } else if (Model.imgURL != null)
+    {
+        <img class ="movImage" src=@Model.imgURL />
+    }
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Details</title>
-</head>
-<body>
-    <div>
-        <h4>Movie</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.Title)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Title)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.Year)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Year)
-            </dd>
-    
-            <dt>
-                @Html.DisplayNameFor(model => model.Rating)
-            </dt>
-    
-            <dd>
-                @Html.DisplayFor(model => model.Rating)
-            </dd>
-    
-        </dl>
+    <div class="movIntro">
+        <h1 class="movTitle">@Model.Title</h1>
+        <p class="movSynopsis">@Model.Synopsis</p>
+
+        @foreach(var genre in Model.Genre)
+        {
+            <p class="movGenre">@genre</p>
+        }
+        <br/>
+        <p class="movYear">@Model.Year</p>
+        <p class="movRating">IMDb Rating: @Model.Rating %</p>
     </div>
-    <p>
-        @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-        @Html.ActionLink("Back to List", "Index")
-    </p>
-</body>
-</html>
+
+    <div class="movDirectorContainer">
+        <h3 class="movDirectorLabel">Director</h3>
+        <p class="movDirector">@Model.Director.Name</p>
+    </div>
+
+    <h3 class="movActorLabel">Actors</h3>
+    @foreach(var actor in Model.Cast)
+    {
+        <p class="movActor">@actor.Name</p>
+    }
+</div>
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

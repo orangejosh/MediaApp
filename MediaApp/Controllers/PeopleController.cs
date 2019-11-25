@@ -84,6 +84,38 @@ namespace MediaApp.Controllers
             return RedirectToAction("Index", new { index = person.Index, job = person.Job });
         }
 
+        public ActionResult Delete(People person)
+        {
+            var dbConn = dbConnection();
+
+            string queryString = "SELECT ImageId FROM dbo.People WHERE Id = @peopleId;";
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@peopleId", person.Id);
+            int imgId = GetId(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Image WHERE Id = @imgId;";
+            cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@imgId", imgId);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Directors WHERE PeopleId = @peopleId;";
+            cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@peopleId", person.Id);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Actors WHERE PeopleId = @peopleId;";
+            cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@peopleId", person.Id);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.People WHERE Id = @peopleId;";
+            cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@peopleId", person.Id);
+			ExecuteCmd(cmd, dbConn);
+
+            return RedirectToAction("Index", new { index = person.Index, job = person.Job });
+        }
+
         // TODO make this more efficent.
         private List<People> GetPeopleList(int index, string job)
         {

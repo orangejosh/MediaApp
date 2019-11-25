@@ -108,9 +108,18 @@ namespace MediaApp.Controllers
         public ActionResult Delete(Movie mov)
         {
             var dbConn = dbConnection();
-
-            string queryString = "DELETE FROM dbo.Directors WHERE MovieId = @movieId;";
+            string queryString = "SELECT ImageId FROM dbo.Movie WHERE Id = @movId;";
             SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@movId", mov.Id);
+            int imgId = GetId(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Image WHERE Id = @imgId;";
+            cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@imgId", imgId);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Directors WHERE MovieId = @movieId;";
+            cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 			ExecuteCmd(cmd, dbConn);
 
@@ -120,11 +129,6 @@ namespace MediaApp.Controllers
 			ExecuteCmd(cmd, dbConn);
 
             queryString = "DELETE FROM dbo.Genre WHERE MovieId = @movieId;";
-            cmd = new SqlCommand(queryString, dbConn);
-			cmd.Parameters.AddWithValue("@movieId", mov.Id);
-			ExecuteCmd(cmd, dbConn);
-
-            queryString = "DELETE FROM dbo.Image WHERE MovieId = @movieId;";
             cmd = new SqlCommand(queryString, dbConn);
 			cmd.Parameters.AddWithValue("@movieId", mov.Id);
 			ExecuteCmd(cmd, dbConn);
