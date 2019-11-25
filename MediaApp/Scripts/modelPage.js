@@ -41,3 +41,19 @@ function addgenre() {
     newInput.name = "Genre[" + index + "]";
     genreButton.parentNode.insertBefore(newInput, genreButton);
 }
+
+function addmovie() {
+    var movieButton = document.getElementById("addMovie");
+    var index = document.getElementsByClassName("movies").length;
+
+    var lineBreak = document.createElement("br");
+    movieButton.parentNode.insertBefore(lineBreak, movieButton);
+
+    var newInput = document.createElement("input");
+    newInput.type = "text";
+    newInput.className = "movies";
+    newInput.id = "Movies_" + index + "__Title";
+    newInput.name = "Movies[" + index + "].Title";
+    movieButton.parentNode.insertBefore(newInput, movieButton);
+
+}

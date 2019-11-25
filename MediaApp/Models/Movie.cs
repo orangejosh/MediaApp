@@ -35,6 +35,14 @@ namespace MediaApp.Models
             Genre = new List<string>();
         }
 
+        public Movie(int id, string title)
+        {
+            Id = id;
+            Title = title;
+            Cast = new List<People>();
+            Genre = new List<string>();
+        }
+
         public Movie(int id, string title, int year)
         {
             Id = id;

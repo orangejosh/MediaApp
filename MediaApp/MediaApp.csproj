@@ -168,9 +168,6 @@
     <Content Include="Content\Images\TitleSlide\GoodFellas.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Images\TitleSlide\Her.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Content\Images\TitleSlide\HudsuckerProxy.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -262,6 +259,7 @@
     <Content Include="Views\Shared\_ModelIndexLayout.cshtml" />
     <Content Include="Views\Shared\_NavBar.cshtml" />
     <Content Include="Views\Upload\Index.cshtml" />
+    <Content Include="Views\People\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Views\Base\" />

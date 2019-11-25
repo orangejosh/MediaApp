@@ -20,6 +20,35 @@ namespace MediaApp.Controllers
             return View(GetPeopleList(index, job));
         }
 
+        public ActionResult Create(string job, int index)
+        {
+            ViewBag.Job = job;
+            ViewBag.Index = index;
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Create(People person)
+        {
+            var dbConn = dbConnection();
+
+            string queryString = "INSERT INTO dbo.People(Name) VALUES (@name);";
+			SqlCommand cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@name", person.Name);
+			ExecuteCmd(cmd, dbConn);
+
+            queryString = "SELECT Id FROM dbo.People WHERE Name = @name;";
+			cmd = new SqlCommand(queryString, dbConn);
+			cmd.Parameters.AddWithValue("@name", person.Name);
+			person.Id = GetId(cmd, dbConn);
+
+            UpdateMovies(person, dbConn);
+            UpdateImage(person, dbConn);
+
+            return RedirectToAction("Index", new { job = person.Job, index = person.Index });
+        }
+
         public ActionResult Edit(int id, string job, int index)
         {
             People person = GetPerson(id, job);
@@ -27,11 +56,13 @@ namespace MediaApp.Controllers
             ViewBag.Index = index;
             ViewBag.Job = job;
 
+            AddImage(person);
+
             return View(person);
         }
 
         [HttpPost]
-        public ActionResult Edit(People people)
+        public ActionResult Edit(People person)
         {
             var dbConn = dbConnection();
 
@@ -43,13 +74,14 @@ namespace MediaApp.Controllers
                 "WHERE " +
                     "Id = @peopleId;";
 			SqlCommand cmd = new SqlCommand(queryString, dbConn);
-			cmd.Parameters.AddWithValue("@name", people.Name);
-			cmd.Parameters.AddWithValue("@peopleId", people.Id);
+			cmd.Parameters.AddWithValue("@name", person.Name);
+			cmd.Parameters.AddWithValue("@peopleId", person.Id);
 			ExecuteCmd(cmd, dbConn);
 
-            UpdateImage(people, dbConn);
+            UpdateMovies(person, dbConn);
+            UpdateImage(person, dbConn);
 
-            return RedirectToAction("Index", new { index = people.Index, job = people.Job });
+            return RedirectToAction("Index", new { index = person.Index, job = person.Job });
         }
 
         // TODO make this more efficent.
@@ -161,7 +193,15 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    Movie movie = new Movie(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2));
+                    Movie movie;
+                    if (reader.IsDBNull(2))
+                    {
+                        movie = new Movie(reader.GetInt32(0), reader.GetString(1));
+                    }
+                    else
+                    {
+                        movie = new Movie(reader.GetInt32(0), reader.GetString(1), reader.GetInt32(2));
+                    }
                     movieList.Add(movie);
                 }
             } 
@@ -226,6 +266,36 @@ namespace MediaApp.Controllers
             {
                 cmd.Dispose();
                 dbConn.Close();
+            }
+        }
+
+        public void UpdateMovies(People person, SqlConnection dbConn)
+        {
+            string queryString = "DELETE FROM dbo." + person.Job + " WHERE PeopleId = @personId;";
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@personId", person.Id);
+            ExecuteCmd(cmd, dbConn);
+
+            foreach (Movie movie in person.Movies)
+            {
+                if (movie.Title != null && movie.Title.Length > 0)
+                {
+                    queryString = "INSERT INTO dbo.Movie(Title) VALUES(@title);";
+                    cmd = new SqlCommand(queryString, dbConn);
+                    cmd.Parameters.AddWithValue("@title", movie.Title);
+                    ExecuteCmd(cmd, dbConn);
+
+                    queryString = "SELECT Id FROM dbo.Movie WHERE Title = @title;";
+                    cmd = new SqlCommand(queryString, dbConn);
+                    cmd.Parameters.AddWithValue("@title", movie.Title);
+                    int movId = GetId(cmd, dbConn);
+
+                    queryString = "INSERT INTO dbo." + person.Job + " (PeopleId, MovieId) VALUES (@peopleId, @movieId);";
+                    cmd = new SqlCommand(queryString, dbConn);
+                    cmd.Parameters.AddWithValue("@peopleId", person.Id);
+                    cmd.Parameters.AddWithValue("@movieId", movId);
+                    ExecuteCmd(cmd, dbConn);
+                }
             }
         }
 

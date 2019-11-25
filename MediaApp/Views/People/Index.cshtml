@@ -9,7 +9,7 @@
 
 <div class="movieTable">
     <p>
-        @Html.ActionLink("Create New", "Create")
+        @Html.ActionLink("Create New", "Create", new { job = ViewBag.Job, index = ViewBag.Index })
     </p>
     <br />
 
@@ -21,6 +21,9 @@
 
     <table class="table">
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.PeopleImage)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>

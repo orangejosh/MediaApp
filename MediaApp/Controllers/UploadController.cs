@@ -13,8 +13,6 @@ namespace MediaApp.Controllers
         // GET: Upload
         public ActionResult Index()
         {
-            System.Diagnostics.Debug.WriteLine("UploadController Run");
-            
             DeleteEverything();
             UploadMovies();
             UploadPeopleImages();
