@@ -250,7 +250,7 @@ namespace MediaApp.Controllers
             return movieList;
         }
 
-        private void AddImage(People person)
+        public void AddImage(People person)
         {
             var dbConn = dbConnection();
             string queryString = 

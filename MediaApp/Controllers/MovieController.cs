@@ -261,13 +261,19 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
+                    People person = new People(reader.GetInt32(0), reader.GetString(1));
+
+                    var peopleController = DependencyResolver.Current.GetService<PeopleController>();
+                    peopleController.ControllerContext = new ControllerContext(this.Request.RequestContext, peopleController);
+                    peopleController.AddImage(person);
+
                     if (job == "Directors")
                     {
-                        mov.Director = new People(reader.GetInt32(0), reader.GetString(1));
+                        mov.Director = person;
                     } 
                     else if (job == "Actors")
                     {
-                        mov.Cast.Add(new People(reader.GetInt32(0), reader.GetString(1)));
+                        mov.Cast.Add(person);
                     }
                 }
                 reader.Close();

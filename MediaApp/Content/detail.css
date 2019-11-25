@@ -39,6 +39,29 @@
 
 }
 
+.peopleImage{
+    height:100px;
+}
+
+.actorLine{
+    margin-top:0;
+    margin-bottom:20px;
+    border:0;
+    border-top:1px solid #9a9a9a;
+}
+
+.movActorContainer{
+    position:absolute;
+    margin-top:25px;
+    width:55%;
+}
+
+.actorBox{
+    display:inline-block;
+    margin-right:10%;
+    vertical-align:top;
+}
+
 .movActorLabel{
 
 }

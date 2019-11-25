@@ -31,13 +31,35 @@
     <div class="movDirectorContainer">
         <h3 class="movDirectorLabel">Director</h3>
         <p class="movDirector">@Model.Director.Name</p>
+
+        @if (Model.Director.PeopleImage != null)
+        {
+            var imgData = "data:" + @Model.Director.PeopleImage.Type + ";base64," + @Model.Director.PeopleImage.Data;
+            <img class ="peopleImage" src=@imgData />
+        } else if (Model.Director.imgURL != null)
+        {
+            <img class ="peopleImage" src=@Model.Director.imgURL />
+        }
     </div>
 
-    <h3 class="movActorLabel">Actors</h3>
-    @foreach(var actor in Model.Cast)
-    {
-        <p class="movActor">@actor.Name</p>
-    }
+    <div class="movActorContainer">
+        <h3 class="movActorLabel">Actors</h3>
+        <hr class="actorLine" />
+        @foreach(var actor in Model.Cast)
+        {
+            <div class="actorBox">
+                <p class="movActor">@actor.Name</p>
+                @if (actor.PeopleImage != null)
+                {
+                    var imgData = "data:" + @actor.PeopleImage.Type + ";base64," + @actor.PeopleImage.Data;
+                    <img class ="peopleImage" src=@imgData />
+                } else if (actor.imgURL != null)
+                {
+                    <img class ="peopleImage" src=@actor.imgURL />
+                }
+            </div>
+        }
+    </div>
 </div>
 
 <p>
