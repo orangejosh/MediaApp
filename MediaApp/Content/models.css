@@ -34,8 +34,20 @@
     margin-bottom: 5px;
 }
 
+.editForm {
+    position: relative;
+    top: 40px;
+}
+
 .movieImage {
     height: 90px;
+    display:inline-block;
+    vertical-align: top;
+}
+
+.imageUploadContainer {
+    display: inline-block;
+    margin-left: 35px;
 }
 
 .navPage {

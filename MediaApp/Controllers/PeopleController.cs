@@ -16,44 +16,20 @@ namespace MediaApp.Controllers
         {
             ViewBag.Index = index;
             ViewBag.Job = job;
+
             return View(GetPeopleList(index, job));
         }
 
-        // TODO Update this for the new database structure.
-        public ActionResult Edit(int id, string job)
+        public ActionResult Edit(int id, string job, int index)
         {
-            People person = new People();
-            var dbConn = dbConnection();
-            string queryString = "SELECT Name FROM dbo.People WHERE Id = " + id + ";";
-            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+            People person = GetPerson(id, job);
 
-            try
-            {
-                dbConn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                while (reader.Read())
-                {
-                    person = new People(id, reader.GetString(0));
-                    reader.Close();
-                    break;
-                }
-            } catch (Exception e)
-            {
-                System.Diagnostics.Debug.WriteLine("Error PeopleController: "+ e.Message);
-            }
-            finally
-            {
-                cmd.Dispose();
-                dbConn.Close();
-            }
-
-            person.Movies = GetMovieList(id, job);
-            AddImage(person);
+            ViewBag.Index = index;
+            ViewBag.Job = job;
 
             return View(person);
         }
 
-        // TODO Update this for the new database structure.
         [HttpPost]
         public ActionResult Edit(People people)
         {
@@ -73,9 +49,10 @@ namespace MediaApp.Controllers
 
             UpdateImage(people, dbConn);
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { index = people.Index, job = people.Job });
         }
 
+        // TODO make this more efficent.
         private List<People> GetPeopleList(int index, string job)
         {
             List<People> peopleList = new List<People>();
@@ -105,9 +82,7 @@ namespace MediaApp.Controllers
                 {
                     if (i >= index)
                     {
-                        People person = new People(reader.GetInt32(0), reader.GetString(1));
-                        person.Movies = GetMovieList(reader.GetInt32(0), job);
-                        AddImage(person);
+                        People person = GetPerson(reader.GetInt32(0), job);
                         peopleList.Add(person);
                     }
                     i++;
@@ -125,6 +100,39 @@ namespace MediaApp.Controllers
             }
 
             return peopleList;
+        }
+
+        private People GetPerson(int id, string job)
+        {
+            People person = new People();
+            var dbConn = dbConnection();
+            string queryString = "SELECT Name FROM dbo.People WHERE Id = " + id + ";";
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+
+            try
+            {
+                dbConn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    person = new People(id, reader.GetString(0));
+                    reader.Close();
+                    break;
+                }
+            } catch (Exception e)
+            {
+                System.Diagnostics.Debug.WriteLine("Error PeopleController: "+ e.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                dbConn.Close();
+            }
+
+            person.Movies = GetMovieList(id, job);
+            AddImage(person);
+
+            return person;
         }
 
         private List<Movie> GetMovieList(int id, string job)
@@ -192,12 +200,7 @@ namespace MediaApp.Controllers
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-
-                    if (reader.GetString(3) != null)
-                    {
-                        person.imgURL = reader.GetString(3);
-                    } 
-                    else
+                    if (!reader.IsDBNull(0))
                     {
                         Image image = new Image();
                         image.Name = reader.GetString(0);
@@ -207,6 +210,10 @@ namespace MediaApp.Controllers
                         image.Data = Convert.ToBase64String(imageData);
 
                         person.PeopleImage = image;
+                    }
+                    else if (!reader.IsDBNull(3))
+                    {
+                        person.imgURL = reader.GetString(3);
                     }
                 }
                 reader.Close();
@@ -242,16 +249,43 @@ namespace MediaApp.Controllers
                 queryString = "SELECT Id FROM dbo.Image WHERE Name = @fileName;";
                 cmd = new SqlCommand(queryString, dbConn);
                 cmd.Parameters.AddWithValue("@fileName", fileName);
-                int imageId = GetId(cmd, dbConn);
+                int newImageId = GetId(cmd, dbConn);
 
-                queryString = "UPDATE dbo.People SET ImageId = @imageId WHERE Id = @peopleId;";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@imageId", imageId);
-                cmd.Parameters.AddWithValue("@peopleId", person.Id);
-                ExecuteCmd(cmd, dbConn);
-
+                UpdateOldImage(dbConn, newImageId, person.Id);
                 reader.Dispose();
             }
+            else if(person.imgURL != null)
+            {
+                string queryString = "INSERT INTO dbo.Image(Url) VALUES(@Url)";
+                SqlCommand cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Url", person.imgURL);
+                ExecuteCmd(cmd, dbConn);
+
+                queryString = "SELECT Id FROM dbo.Image WHERE Url = @Url;";
+                cmd = new SqlCommand(queryString, dbConn);
+                cmd.Parameters.AddWithValue("@Url", person.imgURL);
+                int newImageId = GetId(cmd, dbConn);
+
+                UpdateOldImage(dbConn, newImageId, person.Id);
+            }
+        }
+        public void UpdateOldImage(SqlConnection dbConn, int newImageId, int personId)
+        {
+            string queryString = "SELECT ImageId FROM dbo.People WHERE Id = @id;";
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@id", personId);
+            int oldImgId = GetId(cmd, dbConn);
+            
+            queryString = "UPDATE dbo.People SET ImageId = @imageId WHERE Id = @peopleId;";
+            cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@imageId", newImageId);
+            cmd.Parameters.AddWithValue("@peopleId", personId);
+            ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Image WHERE Id = @imgId;";
+            cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@imgId", oldImgId);
+            ExecuteCmd(cmd, dbConn);
         }
     }
 }

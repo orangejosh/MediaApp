@@ -5,38 +5,38 @@
     Layout = "~/Views/Shared/_ModelIndexLayout.cshtml";
 }
 
-<h2>Edit</h2>
+<h2 class="modelTitle">Edit<br/>Movie</h2>
 
 @using (Html.BeginForm("Edit", "Movie", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 
     <div class="form-horizontal">
-        <h4>Movie</h4>
-        <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.Id)
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.MovImage, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @if (Model.MovImage != null)
                 {
                     var imgData = "data:" + Model.MovImage.Type + ";base64," + Model.MovImage.Data;
-                    <img width="75" height="75" src=@imgData />
+                    <img class="movieImage" src=@imgData />
                 } else if (Model.imgURL != null) {
                         <img class="movieImage" src=@Model.imgURL />
                 }
-                <p>Local File</p>
-                <input type="file" id="Image" name="ImageInput" class="image" />
-                <br />
-                <p>--or--</p>
-                <p>URL</p>
-                <input type="text" id="imgUrl" class="control-label col-md-2" name="imgUrl"/>
+                <div class="imageUploadContainer">
+                    <p>Local File</p>
+                    <input type="file" id="Image" name="ImageInput" class="image" />
+                    <br />
+                    <p>--or--</p>
+                    <p>URL</p>
+                    <input type="text" id="imgUrl" class="form-control" name="imgUrl"/>
+                </div>
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
@@ -44,7 +44,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Synopsis, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.TextAreaFor(model => model.Synopsis, new {@class = "form-control" } )
@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Director, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Director.Name, new { htmlAttributes = new { @class = "form-control" } })
@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Cast, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @for (int i = 0; i < Model.Cast.Count; i++)
@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Genre, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @for (int i = 0; i < Model.Genre.Count; i++)
@@ -98,7 +98,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Year, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Year, new { htmlAttributes = new { @class = "form-control" } })
@@ -106,7 +106,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group editForm">
             @Html.LabelFor(model => model.Rating, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Rating, new { htmlAttributes = new { @class = "form-control" } })
@@ -117,7 +117,7 @@
         <input type="hidden" name="Order" value=@ViewBag.Order />
         <input type="hidden" name="Index" value=@ViewBag.Index />
 
-        <div class="form-group">
+        <div class="form-group editForm">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>

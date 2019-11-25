@@ -483,14 +483,9 @@ namespace MediaApp.Controllers
                 queryString = "SELECT Id FROM dbo.Image WHERE Name = @fileName;";
                 cmd = new SqlCommand(queryString, dbConn);
                 cmd.Parameters.AddWithValue("@fileName", fileName);
-                int imageId = GetId(cmd, dbConn);
+                int newImageId = GetId(cmd, dbConn);
 
-                queryString = "UPDATE dbo.Movie SET ImageId = @imageId WHERE Id = @movieId;";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@imageId", imageId);
-                cmd.Parameters.AddWithValue("@movieId", mov.Id);
-                ExecuteCmd(cmd, dbConn);
-
+                UpdateOldImage(dbConn, newImageId, mov.Id);
                 reader.Dispose();
             } 
             else if(mov.imgURL != null)
@@ -503,15 +498,29 @@ namespace MediaApp.Controllers
                 queryString = "SELECT Id FROM dbo.Image WHERE Url = @Url;";
                 cmd = new SqlCommand(queryString, dbConn);
                 cmd.Parameters.AddWithValue("@Url", mov.imgURL);
-                int imageId = GetId(cmd, dbConn);
+                int newImageId = GetId(cmd, dbConn);
 
-                queryString = "UPDATE dbo.Movie SET ImageId = @imageId WHERE Id = @movieId;";
-                cmd = new SqlCommand(queryString, dbConn);
-                cmd.Parameters.AddWithValue("@imageId", imageId);
-                cmd.Parameters.AddWithValue("@movieId", mov.Id);
-                ExecuteCmd(cmd, dbConn);
-
+                UpdateOldImage(dbConn, newImageId, mov.Id);
             }
+        }
+
+        public void UpdateOldImage(SqlConnection dbConn, int newImageId, int movId)
+        {
+            string queryString = "SELECT ImageId FROM dbo.Movie WHERE Id = @id;";
+            SqlCommand cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@id", movId);
+            int oldImgId = GetId(cmd, dbConn);
+
+            queryString = "UPDATE dbo.Movie SET ImageId = @imageId WHERE Id = @movieId;";
+            cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@imageId", newImageId);
+            cmd.Parameters.AddWithValue("@movieId", movId);
+            ExecuteCmd(cmd, dbConn);
+
+            queryString = "DELETE FROM dbo.Image WHERE Id = @imgId;";
+            cmd = new SqlCommand(queryString, dbConn);
+            cmd.Parameters.AddWithValue("@imgId", oldImgId);
+            ExecuteCmd(cmd, dbConn);
         }
     }
 }

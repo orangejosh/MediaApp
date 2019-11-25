@@ -13,9 +13,11 @@ namespace MediaApp.Models
         public string Name { get; set; }
         public List<Movie> Movies { get; set; }
         public HttpPostedFileBase ImageInput { get; set; }
-        [Display(Name = "")]
+        [Display(Name = "Image")]
         public Image PeopleImage { get; set; }
         public string imgURL { get; set; }
+        public int Index { get; set; }
+        public string Job { get; set; }
 
         public People()
         {
